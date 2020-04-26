@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/src/urlsAndKeys.java
+/out/production/Bizsearch2/urlsAndKeys.class
+/.idea/
+res/*
+/Bizsearch2.iml
