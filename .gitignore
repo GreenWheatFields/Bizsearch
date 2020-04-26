@@ -6,3 +6,5 @@
 /.idea/
 res/*
 /Bizsearch2.iml
+/src/RandomUserAgent.java
+/out/production/Bizsearch2/RandomUserAgent.class

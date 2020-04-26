@@ -11,7 +11,7 @@ public class Alabama {
 
     public static void main(String[] args) throws IOException {
         int count = 0;
-        Document doc = Jsoup.connect(urlsAndKeys.AlabamaUrl()).userAgent("Mozilla/5.0").get();
+        Document doc = Jsoup.connect(urlsAndKeys.AlabamaUrl()).userAgent(RandomUserAgent.getRandomUserAgent()).get();
         //Document doc1 = doc;
         Elements natureOfBusiness = doc.select("#block-sos-content > div > div > div > table:nth-child(2) > tbody:nth-child(2) > tr:nth-child(11) > td.aiSosDetailValue");
         String test = natureOfBusiness.text();
@@ -19,11 +19,10 @@ public class Alabama {
         String bizInfo = doc.select("#block-sos-content > div > div > div > table:nth-child(2) > tbody:nth-child(2)").text();
         //System.out.println(bizInfo);
         Elements inspectors = doc.getElementsByClass("aiSosDetailDesc");
-
-        for (Element e : inspectors){
-            System.out.println(e.text() + "\n");
-        }
-
+        Elements inspectors2 = doc.getElementsByClass("aiSosDetailValue");
+        //for (Element e : inspectors Element a: inspectors2){
+        //}}
+        System.out.println(inspectors.size());
 
 
 
