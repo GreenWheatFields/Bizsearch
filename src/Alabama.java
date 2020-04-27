@@ -3,8 +3,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.Arrays;
-import java.util.logging.Logger;
 
 
 import java.io.IOException;
@@ -37,7 +35,7 @@ public class Alabama {
         }
 
         for (int i = 0; i < inspectors.size()-1; i++){
-                System.out.println(table[0][i] + " : " + table[1][i]);
+               System.out.println(table[0][i] + " : " + table[1][i]);
 
         }
 
