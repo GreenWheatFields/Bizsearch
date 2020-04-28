@@ -4,7 +4,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 
-
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Alabama {
@@ -35,13 +35,30 @@ public class Alabama {
         }
 
         for (int i = 0; i < inspectors.size()-1; i++){
-               System.out.println(table[0][i] + " : " + table[1][i]);
+            System.out.println(table[0][i] + " : " + table[1][i]);
 
         }
+        FileWriter csvWriter = new FileWriter("Alabama.csv");
+        csvWriter.append("State,");
+        csvWriter.append("Country,");
+        csvWriter.append("ID Number");
+        csvWriter.append(",");
+        csvWriter.append("Entity Type");
+        csvWriter.append(",");
+        csvWriter.append("Principal Address,");
+        csvWriter.append("\n");
+        csvWriter.append("AL,");
+        csvWriter.append("USA,");
+        csvWriter.append(table[1][0]).append(",");
+        csvWriter.append(table[1][1]).append(",");
+        csvWriter.append(table[1][2]).append("\n");
+        csvWriter.flush();
+        csvWriter.close();
 
-
+     //   System.out.println(table[0][5] + table[1][5]);
     //System.out.println(inspectors);
     //System.out.println(inspectors);
 }
+
 }
 
