@@ -8,10 +8,14 @@ import javax.print.Doc;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Alabama {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParseException {
         int count = 0;
         String URL = urlsAndKeys.AlabamaUrl();
         System.out.println(URL);
@@ -39,17 +43,42 @@ public class Alabama {
         for (int i = 0; i < description.size(); i++){
            System.out.println(table[0][i] + " : " + table[1][i]);
         }
-            csvWriter.append(URL).append(",");
-            csvWriter.append("USA").append(",");
-            csvWriter.append("Al").append(",");
-            csvWriter.append(name + ",");
-            csvWriter.append(table[1][0]).append(",\n");
+        csvWriter.append(URL).append(", USA, AL,");
+            csvWriter.append(String.valueOf('"')).append(name).append(String.valueOf('"')).append(",");
+            csvWriter.append(table[1][0]).append(",");
+            csvWriter.append(table[1][1]).append(",");
+            if (table[1][1].contains("Corporation")){
+                csvWriter.append("Corporation,");
+            }else if (table[1][1].contains("Limited")){
+                csvWriter.append("LLC,");
+            }else {
+                csvWriter.append("---,");
+            }
+            csvWriter.append(table[1][4]).append(",");
+            if (table[1][4].equalsIgnoreCase("dissolved")){
+                var parser = new SimpleDateFormat("M-dd-yyyy");
+                Date date = parser.parse(table[1][5]);
+                var formatter = new SimpleDateFormat("MM/dd/yyyy");
+                String formattedDate = formatter.format(date);
+                csvWriter.append(formattedDate).append(",");
+                csvWriter.append(table[1][6]).append(",\n");
+            }else if (table[1][4].equalsIgnoreCase("withdrawn")){
+                var parser = new SimpleDateFormat("M-dd-yyyy");
+                Date date = parser.parse(table[1][5]);
+                var formatter = new SimpleDateFormat("MM/dd/yyyy");
+                String formattedDate = formatter.format(date);
+                csvWriter.append(formattedDate).append(",");
+            }else {
+                csvWriter.append("---,").append(table[1][5]).append("\n");
+            }
             csvWriter.flush();
             csvWriter.close();
 
 
 
-     //System.out.println(table[0][5] + table[1][5]);
+
+
+     System.out.println(table[0][5] + table[1][5]);
     //System.out.println(description);
     //System.out.println(description);
 }
