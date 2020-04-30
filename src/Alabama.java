@@ -14,12 +14,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Alabama {
+    public static FileWriter csvWriter;
 
+    static {
+        try {
+            csvWriter = new FileWriter("Alabama.csv",true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static SimpleDateFormat parser = new SimpleDateFormat("M-dd-yyyy");
+    public static SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
     public static void main(String[] args) throws IOException, ParseException {
-       parse();
+
+        parse();
 }
-    public static void parse(/*String URL*/ ) throws IOException, ParseException {
-        FileWriter csvWriter = new FileWriter("Alabama.csv",true);
+    public static void parse(/*String URL*/) throws IOException, ParseException {
+
         int count = 0;
         String URL = urlsAndKeys.AlabamaUrl();
         System.out.println(URL);
@@ -28,7 +39,7 @@ public class Alabama {
         Elements description = doc.getElementsByClass("aiSosDetailDesc");
         Elements value = doc.getElementsByClass("aiSosDetailValue");
         String name = doc.select("#block-sos-content > div > div > div > table:nth-child(2) > thead:nth-child(1) > tr > td").text();
-        String[][] table = new String[description.size() +1][value.size() + 1];
+        String[][] table = new String[description.size() +1][value.size() + 1]; //2d array for testing.
         for (Element e : description) {
             table[0][count] = e.text();
             count++;
@@ -44,9 +55,9 @@ public class Alabama {
         }
         csvWriter.append(URL).append(", USA, AL,");
         csvWriter.append(String.valueOf('"')).append(name).append(String.valueOf('"')).append(",");
-        csvWriter.append(table[1][0]).append(",");
-        csvWriter.append(table[1][1]).append(",");
-       //first split in uniformity
+        csvWriter.append(table[1][0]).append(","); //entity number
+        csvWriter.append(table[1][1]).append(","); //entity type full ex "Foreign Limited Liability Company"
+        //first split in uniformity
         if (table[1][1].contains("Corporation")){
             csvWriter.append("Corporation,");
         }else if (table[1][1].contains("Limited")){
@@ -54,31 +65,27 @@ public class Alabama {
         }else {
             csvWriter.append("---,");
         }
-        csvWriter.append(table[1][4]).append(",");
+        csvWriter.append(table[1][4]).append(","); // status
         if (table[1][4].equalsIgnoreCase("dissolved")){
-            var parser = new SimpleDateFormat("M-dd-yyyy");
             Date date = parser.parse(table[1][5]);
-            var formatter = new SimpleDateFormat("MM/dd/yyyy");
-            String formattedDate = formatter.format(date);
-            csvWriter.append(formattedDate).append(","); //dissolve date
-            csvWriter.append(table[1][6]).append(",");//place of formation
+            csvWriter.append(formatter.format(date)).append(","); //dissolve date
             csvWriter.append(table[1][7]).append(",\n");//formation date
         }else if (table[1][4].equalsIgnoreCase("withdrawn")){
-           //TODO turn date shit into a seperate method
-            var parser = new SimpleDateFormat("M-dd-yyyy");
             Date date = parser.parse(table[1][5]);
-            var formatter = new SimpleDateFormat("MM/dd/yyyy");
+
             String formattedDate = formatter.format(date);
-            csvWriter.append(formattedDate).append(",");
-            csvWriter.append(table[1][7]).append(",");
+
+            csvWriter.append(formattedDate).append(","); //withdraw date
             date = parser.parse(table[1][8]);
-            csvWriter.append(formatter.format(date));
+            csvWriter.append(formatter.format(date));    //formation date
         }else {
-            csvWriter.append("---,").append(table[1][5]).append("\n");
+            csvWriter.append("---,");
+            Date date = parser.parse(table[1][6]);
+            csvWriter.append(formatter.format(date));
 
         }
         csvWriter.flush();
-        csvWriter.close();
+        //csvWriter.close();
 
         System.out.println(table[0][6] + table[1][6]);
 
