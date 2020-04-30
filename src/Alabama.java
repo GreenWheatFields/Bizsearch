@@ -81,8 +81,6 @@ public class Alabama {
         csvWriter.close();
 
         System.out.println(table[0][6] + table[1][6]);
-        //System.out.println(description);
-
 
     }
 }
