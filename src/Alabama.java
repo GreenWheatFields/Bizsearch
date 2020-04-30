@@ -118,7 +118,7 @@ public class Alabama {
                 csvWriter.append(formatter.format(date)).append(","); //formation date
                 csvWriter.append('"').append(table[1][7]).append('"').append(","); //registered agent name
                 csvWriter.append('"').append(table[1][8]).append('"').append(",");  //registered mailing address
-                csvWriter.append('"').append(table[1][9]).append('"').append("\n"); //register mailing address
+                csvWriter.append('"').append(table[1][9]).append('"').append(",").append("\n"); //register mailing address
                 csvWriter.flush();
                 totalScraped++;
                 System.out.println(totalScraped);
