@@ -1,3 +1,4 @@
+import com.google.gson.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -5,12 +6,13 @@ import org.jsoup.select.Elements;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class Alabama {
     public static FileWriter csvWriter;
@@ -29,11 +31,14 @@ public class Alabama {
     private final static String baseURL = "http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1=";
     public static int totalScraped = 0;
     private static String formatted;
+    public static String lastIP;
     public static void main(String[] args) throws IOException, ParseException {
         //checkConn();
        // parse();
         //System.out.println("done");
         //System.out.println(nextBiz);
+        setProxy();
+        parse();
 
 }
     public static void parse() throws IOException, ParseException {
@@ -183,22 +188,35 @@ public class Alabama {
         return URL + formatted;
     }
     private static void setProxy() throws IOException {
+        int randomServer = 0;
+        var rd = new Random();
+        randomServer = rd.nextInt(19)+1;
         URL url = new URL("https://api.nordvpn.com/v1/servers/recommendations?filters\\228\\=81");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("GET");
         con.connect();
-
         int l = con.getResponseCode();
         System.out.println(l);
+        JsonParser jp = new JsonParser();
+        JsonArray root = jp.parse(new InputStreamReader((InputStream) con.getContent())).getAsJsonArray();
+        JsonObject servers = root.get(randomServer).getAsJsonObject();
+        String hostname = servers.getAsJsonPrimitive("hostname").getAsString();
+        if (hostname.equals(lastIP)) setProxy();
+        lastIP = hostname;
 
+        System.setProperty("http.proxyHost", "us5112.nordvpn.com");
+        System.setProperty("http.proxyPort", "80");
+        System.setProperty("http.proxyUser", urlsAndKeys.user());
+        System.setProperty("http.proxyPassword", urlsAndKeys.password());
+        System.out.println("proxy set ");
+        Authenticator.setDefault(
+                new Authenticator() {
+                    public PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(urlsAndKeys.user(), urlsAndKeys.password().toCharArray());
+                    }
+                }
+        );
 
-
-        /*URL url = new URL("http://example.com");
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.connect();
-        int code = connection.getResponseCode();
-        System.out.println(code);*/
     }
     public static void killSwitch(){
         System.out.println("BANNED");
