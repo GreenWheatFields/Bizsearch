@@ -26,36 +26,42 @@ public class Alabama {
     }
     public static SimpleDateFormat parser = new SimpleDateFormat("M-dd-yyyy");
     public static SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-    public static int nextBiz = 143456;
+    public static int nextBiz = 111123;
     //private static String URL = urlsAndKeys.AlabamaUrl();
     private final static String baseURL = "http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1=";
     public static int totalScraped = 0;
     private static String formatted;
     public static String lastIP;
+    public static int proxyCount = 0;
     public static void main(String[] args) throws IOException, ParseException {
         //checkConn();
-       // parse();
+            parse();
         //System.out.println("done");
         //System.out.println(nextBiz);
-        setProxy();
-        parse();
+
+
 
 }
     public static void parse() throws IOException, ParseException {
-
-
-        while(totalScraped < 705) {
-
+        if (proxyCount < 1){
+            proxyCount++;
+            setProxy();
+        }
+        if (proxyCount >= 74){
+            proxyCount = 0;
+            parse();
+        }
+        while(totalScraped < 75000) {
             nextBiz++;
             String searchURL = add(baseURL);
             System.out.println(searchURL);
             Document doc = Jsoup.connect(searchURL).userAgent(RandomUserAgent.getRandomUserAgent()).get();
             String check = doc.select("#block-sos-content > div > div > div > b").text();
             int check2 = doc.getAllElements().size(); //9 is
+            System.out.println();
             if(check2 < 15){
-                killSwitch();
-                totalScraped = 760;
-                break;
+                totalScraped = 0;
+                parse();
             }
             if (check.equalsIgnoreCase("No matches found.")){
                 parse();
@@ -101,6 +107,7 @@ public class Alabama {
                 csvWriter.append('"').append(table[1][9]).append('"').append(",");//register office street address
                 csvWriter.append('"').append(table[1][10]).append('"').append(",\n");//mailing address
                 csvWriter.flush();
+                proxyCount++;
                 totalScraped++;
                 System.out.println(totalScraped);
                 parse();
@@ -115,6 +122,7 @@ public class Alabama {
                 csvWriter.append('"').append(table[1][11]).append('"').append(","); // registered Office street address
                 csvWriter.append('"').append(table[1][12]).append('"').append("\n"); //registered office mailing address
                 csvWriter.flush();
+                proxyCount++;
                 totalScraped++;
                 System.out.println(totalScraped);
                 parse();
@@ -130,6 +138,7 @@ public class Alabama {
                 csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
                 csvWriter.flush();
                 totalScraped++;
+                proxyCount++;
                 System.out.println(totalScraped);
                 parse();
 
@@ -143,6 +152,7 @@ public class Alabama {
                 csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
                 csvWriter.flush();
                 totalScraped++;
+                proxyCount++;
                 System.out.println(totalScraped);
                 parse();
 
@@ -156,6 +166,7 @@ public class Alabama {
                 csvWriter.append('"').append(table[1][9]).append('"').append(",").append("\n"); //register mailing address
                 csvWriter.flush();
                 totalScraped++;
+                proxyCount++;
                 System.out.println(totalScraped);
                 parse();
 
@@ -201,14 +212,15 @@ public class Alabama {
         JsonArray root = jp.parse(new InputStreamReader((InputStream) con.getContent())).getAsJsonArray();
         JsonObject servers = root.get(randomServer).getAsJsonObject();
         String hostname = servers.getAsJsonPrimitive("hostname").getAsString();
-        if (hostname.equals(lastIP)) setProxy();
+        if (hostname.equals(lastIP)){
+            setProxy();
+        }
         lastIP = hostname;
 
-        System.setProperty("http.proxyHost", "us5112.nordvpn.com");
+        System.setProperty("http.proxyHost", hostname);
         System.setProperty("http.proxyPort", "80");
         System.setProperty("http.proxyUser", urlsAndKeys.user());
         System.setProperty("http.proxyPassword", urlsAndKeys.password());
-        System.out.println("proxy set ");
         Authenticator.setDefault(
                 new Authenticator() {
                     public PasswordAuthentication getPasswordAuthentication() {
@@ -216,6 +228,19 @@ public class Alabama {
                     }
                 }
         );
+
+        URL url2 = new URL("http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1");
+        HttpURLConnection con2 = (HttpURLConnection)url2.openConnection();
+        con2.setConnectTimeout(1000);
+        int newResponseCode = con2.getResponseCode();
+        System.out.println(newResponseCode + " getting response code.");
+        if (newResponseCode == 407){
+            System.out.println("Bad proxy");
+            setProxy();
+        }
+        System.out.println("proxy set ");
+
+
 
     }
     public static void killSwitch(){
