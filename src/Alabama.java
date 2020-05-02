@@ -26,7 +26,7 @@ public class Alabama {
     }
     public static SimpleDateFormat parser = new SimpleDateFormat("M-dd-yyyy");
     public static SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-    public static int nextBiz = 808;
+    public static int nextBiz = 102;
     //private static String URL = urlsAndKeys.AlabamaUrl();
     private final static String baseURL = "http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1=";
     public static int totalScraped = 0;
@@ -44,20 +44,20 @@ public class Alabama {
 
 }
     public static void parse() throws IOException, ParseException {
-        if (proxyCount < 1){
+        /*if (proxyCount < 1){
             proxyCount++;
             setProxy();
         }
         if (proxyCount >= 74){
             proxyCount = 0;
             parse();
-        }
+        }*/
         while(totalScraped < 75000) {
             nextBiz++;
             String searchURL = add(baseURL);
             System.out.println(searchURL);
             Document doc = Jsoup.connect(searchURL).userAgent(RandomUserAgent.getRandomUserAgent()).get();
-            System.out.println("tseting");
+            System.out.println("test1"); //repeating bug might be from not accurately checking for the "too many request" message.
             String check = doc.select("#block-sos-content > div > div > div > b").text();
             int check2 = doc.getAllElements().size(); //9 is blank listing message
             if(check2 < 15){
@@ -71,6 +71,7 @@ public class Alabama {
             Elements value = doc.getElementsByClass("aiSosDetailValue");
             String name = doc.select("#block-sos-content > div > div > div > table:nth-child(2) > thead:nth-child(1) > tr > td").text();
             String[][] table = new String[description.size() + 1][value.size() + 1]; //2d array for testing.
+
 
             int count = 0;
             for (Element e : description) {
@@ -154,6 +155,10 @@ public class Alabama {
                     proxyCount++;
                     System.out.println(totalScraped);
                     parse();
+
+              //  case "cancelled":
+                //    System.out.println("CANCELLED" + searchURL);
+
                 default:
                     csvWriter.append("---,");
                     Date date5 = parser.parse(table[1][6]);
@@ -239,6 +244,7 @@ public class Alabama {
             setProxy();
         }
         System.out.println("proxy set ");
+        System.out.println(hostname);
     }
     public static void killSwitch(){
         System.out.println("BANNED");
