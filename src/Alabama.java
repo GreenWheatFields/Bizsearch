@@ -26,7 +26,7 @@ public class Alabama {
     }
     public static SimpleDateFormat parser = new SimpleDateFormat("M-dd-yyyy");
     public static SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-    public static int nextBiz = 111123;
+    public static int nextBiz = 808;
     //private static String URL = urlsAndKeys.AlabamaUrl();
     private final static String baseURL = "http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1=";
     public static int totalScraped = 0;
@@ -35,7 +35,8 @@ public class Alabama {
     public static int proxyCount = 0;
     public static void main(String[] args) throws IOException, ParseException {
         //checkConn();
-            parse();
+        parse();
+        //setProxy();
         //System.out.println("done");
         //System.out.println(nextBiz);
 
@@ -56,9 +57,9 @@ public class Alabama {
             String searchURL = add(baseURL);
             System.out.println(searchURL);
             Document doc = Jsoup.connect(searchURL).userAgent(RandomUserAgent.getRandomUserAgent()).get();
+            System.out.println("tseting");
             String check = doc.select("#block-sos-content > div > div > div > b").text();
-            int check2 = doc.getAllElements().size(); //9 is
-            System.out.println();
+            int check2 = doc.getAllElements().size(); //9 is blank listing message
             if(check2 < 15){
                 totalScraped = 0;
                 parse();
@@ -98,77 +99,74 @@ public class Alabama {
             } else {
                 csvWriter.append("---,");
             }
+            System.out.println("test2");
             csvWriter.append(table[1][4]).append(","); // business status
-            if (table[1][4].equalsIgnoreCase("dissolved")) {
-                Date date = parser.parse(table[1][5]);
-                csvWriter.append(formatter.format(date)).append(","); //dissolve date
-                csvWriter.append(table[1][7]).append(",");//formation date
-                csvWriter.append('"').append(table[1][8]).append('"').append(",");//agent name
-                csvWriter.append('"').append(table[1][9]).append('"').append(",");//register office street address
-                csvWriter.append('"').append(table[1][10]).append('"').append(",\n");//mailing address
-                csvWriter.flush();
-                proxyCount++;
-                totalScraped++;
-                System.out.println(totalScraped);
-                parse();
+            switch (table[1][4].toLowerCase()){
+                case "dissolved":
+                    Date date = parser.parse(table[1][5]);
+                    csvWriter.append(formatter.format(date)).append(","); //dissolve date
+                    csvWriter.append(table[1][7]).append(",");//formation date
+                    csvWriter.append('"').append(table[1][8]).append('"').append(",");//agent name
+                    csvWriter.append('"').append(table[1][9]).append('"').append(",");//register office street address
+                    csvWriter.append('"').append(table[1][10]).append('"').append(",\n");//mailing address
+                    csvWriter.flush();
+                    proxyCount++;
+                    totalScraped++;
+                    System.out.println(totalScraped);
+                    parse();
+                case "withdrawn":
+                    Date date2 = parser.parse(table[1][5]);
+                    String formattedDate = formatter.format(date2);
+                    csvWriter.append(formattedDate).append(","); //withdraw date
+                    date2 = parser.parse(table[1][8]);
+                    csvWriter.append(formatter.format(date2)).append(",");    //formation date
+                    csvWriter.append('"').append(table[1][10]).append('"').append(","); //registered agent name
+                    csvWriter.append('"').append(table[1][11]).append('"').append(","); // registered Office street address
+                    csvWriter.append('"').append(table[1][12]).append('"').append("\n"); //registered office mailing address
+                    csvWriter.flush();
+                    proxyCount++;
+                    totalScraped++;
+                    System.out.println(totalScraped);
+                    parse();
+                case "merged":
+                    Date date3 = parser.parse(table[1][5]);
+                    csvWriter.append(formatter.format(date3)).append(","); //merge date
+                    date3 = parser.parse(table[1][8]);
+                    csvWriter.append(formatter.format(date3)).append(","); //formation date
+                    csvWriter.append('"').append(table[1][9]).append('"').append(","); //registered agent name
+                    csvWriter.append('"').append(table[1][10]).append('"').append(","); // office addy
+                    csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
+                    csvWriter.flush();
+                    totalScraped++;
+                    proxyCount++;
+                    System.out.println(totalScraped);
+                    parse();
+                case "consolidated":
+                    Date date4 = parser.parse(table[1][5]);
+                    csvWriter.append(formatter.format(date4)).append(",");
+                    date4 = parser.parse(table[1][8]);
+                    csvWriter.append(formatter.format(date4)).append(","); //formation date
+                    csvWriter.append('"').append(table[1][9]).append('"').append(","); //registered agent name
+                    csvWriter.append('"').append(table[1][10]).append('"').append(","); // office addy
+                    csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
+                    csvWriter.flush();
+                    totalScraped++;
+                    proxyCount++;
+                    System.out.println(totalScraped);
+                    parse();
+                default:
+                    csvWriter.append("---,");
+                    Date date5 = parser.parse(table[1][6]);
+                    csvWriter.append(formatter.format(date5)).append(","); //formation date
+                    csvWriter.append('"').append(table[1][7]).append('"').append(","); //registered agent name
+                    csvWriter.append('"').append(table[1][8]).append('"').append(",");  //registered mailing address
+                    csvWriter.append('"').append(table[1][9]).append('"').append(",").append("\n"); //register mailing address
+                    csvWriter.flush();
+                    totalScraped++;
+                    proxyCount++;
+                    System.out.println(totalScraped);
+                    parse();
 
-            } else if (table[1][4].equalsIgnoreCase("withdrawn")) {
-                Date date = parser.parse(table[1][5]);
-                String formattedDate = formatter.format(date);
-                csvWriter.append(formattedDate).append(","); //withdraw date
-                date = parser.parse(table[1][8]);
-                csvWriter.append(formatter.format(date)).append(",");    //formation date
-                csvWriter.append('"').append(table[1][10]).append('"').append(","); //registered agent name
-                csvWriter.append('"').append(table[1][11]).append('"').append(","); // registered Office street address
-                csvWriter.append('"').append(table[1][12]).append('"').append("\n"); //registered office mailing address
-                csvWriter.flush();
-                proxyCount++;
-                totalScraped++;
-                System.out.println(totalScraped);
-                parse();
-
-
-            } else if (table[1][4].equalsIgnoreCase("merged")) {
-                Date date = parser.parse(table[1][5]);
-                csvWriter.append(formatter.format(date)).append(","); //merge date
-                date = parser.parse(table[1][8]);
-                csvWriter.append(formatter.format(date)).append(","); //formation date
-                csvWriter.append('"').append(table[1][9]).append('"').append(","); //registered agent name
-                csvWriter.append('"').append(table[1][10]).append('"').append(","); // office addy
-                csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
-                csvWriter.flush();
-                totalScraped++;
-                proxyCount++;
-                System.out.println(totalScraped);
-                parse();
-
-            }else if(table[1][4].equalsIgnoreCase("consolidated")){
-                Date date = parser.parse(table[1][5]);
-                csvWriter.append(formatter.format(date)).append(",");
-                date = parser.parse(table[1][8]);
-                csvWriter.append(formatter.format(date)).append(","); //formation date
-                csvWriter.append('"').append(table[1][9]).append('"').append(","); //registered agent name
-                csvWriter.append('"').append(table[1][10]).append('"').append(","); // office addy
-                csvWriter.append('"').append(table[1][11]).append('"').append(",\n"); //mailing addy
-                csvWriter.flush();
-                totalScraped++;
-                proxyCount++;
-                System.out.println(totalScraped);
-                parse();
-
-            }
-            else {
-                csvWriter.append("---,");
-                Date date = parser.parse(table[1][6]);
-                csvWriter.append(formatter.format(date)).append(","); //formation date
-                csvWriter.append('"').append(table[1][7]).append('"').append(","); //registered agent name
-                csvWriter.append('"').append(table[1][8]).append('"').append(",");  //registered mailing address
-                csvWriter.append('"').append(table[1][9]).append('"').append(",").append("\n"); //register mailing address
-                csvWriter.flush();
-                totalScraped++;
-                proxyCount++;
-                System.out.println(totalScraped);
-                parse();
 
             }
             csvWriter.flush();
@@ -188,10 +186,10 @@ public class Alabama {
             formatted = String.format("%06d", nextBiz);
         }
         if (nextBiz >=1000 && nextBiz <= 9999){
-            formatted = String.format("%60d", nextBiz);
+            formatted = String.format("%06d", nextBiz);
         }
         if (nextBiz >= 10000 && nextBiz <= 99999){
-            formatted = String.format("%60d", nextBiz);
+            formatted = String.format("%06d", nextBiz);
         }
         if (nextBiz >= 100000){
             formatted = Integer.toString(nextBiz);
@@ -199,12 +197,20 @@ public class Alabama {
         return URL + formatted;
     }
     private static void setProxy() throws IOException {
+        Authenticator.setDefault(
+                new Authenticator() {
+                    public PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(urlsAndKeys.user(), urlsAndKeys.password().toCharArray());
+                    }
+                }
+        );
         int randomServer = 0;
         var rd = new Random();
         randomServer = rd.nextInt(19)+1;
-        URL url = new URL("https://api.nordvpn.com/v1/servers/recommendations?filters\\228\\=81");
+        URL url = new URL("https://api.nordvpn.com/v1/servers/recommendations?filters\\228\\=81"); //https://api.nordvpn.com/v1/servers/recommendations
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("GET");
+        con.setConnectTimeout(1000);
         con.connect();
         int l = con.getResponseCode();
         System.out.println(l);
@@ -221,13 +227,7 @@ public class Alabama {
         System.setProperty("http.proxyPort", "80");
         System.setProperty("http.proxyUser", urlsAndKeys.user());
         System.setProperty("http.proxyPassword", urlsAndKeys.password());
-        Authenticator.setDefault(
-                new Authenticator() {
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(urlsAndKeys.user(), urlsAndKeys.password().toCharArray());
-                    }
-                }
-        );
+
 
         URL url2 = new URL("http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1");
         HttpURLConnection con2 = (HttpURLConnection)url2.openConnection();
@@ -235,13 +235,10 @@ public class Alabama {
         int newResponseCode = con2.getResponseCode();
         System.out.println(newResponseCode + " getting response code.");
         if (newResponseCode == 407){
-            System.out.println("Bad proxy");
+            System.out.println("Bad proxy. Getting new Proxy");
             setProxy();
         }
         System.out.println("proxy set ");
-
-
-
     }
     public static void killSwitch(){
         System.out.println("BANNED");
