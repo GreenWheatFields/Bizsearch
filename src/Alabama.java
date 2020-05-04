@@ -26,7 +26,7 @@ public class Alabama {
     }
     public static SimpleDateFormat parser = new SimpleDateFormat("M-dd-yyyy");
     public static SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-    public static int nextBiz = 102;
+    public static int nextBiz = 5649;
     //private static String URL = urlsAndKeys.AlabamaUrl();
     private final static String baseURL = "http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1=";
     public static int totalScraped = 0;
@@ -44,7 +44,7 @@ public class Alabama {
 
 }
     public static void parse() throws IOException, ParseException {
-        /*if (proxyCount < 1){
+      /* if (proxyCount < 1){
             proxyCount++;
             setProxy();
         }
@@ -54,15 +54,15 @@ public class Alabama {
         }*/
         while(totalScraped < 75000) {
             nextBiz++;
-            String searchURL = add(baseURL);
+            String searchURL = baseURL + String.format("%06d", nextBiz);
             System.out.println(searchURL);
             Document doc = Jsoup.connect(searchURL).userAgent(RandomUserAgent.getRandomUserAgent()).get();
             System.out.println("test1"); //repeating bug might be from not accurately checking for the "too many request" message.
             String check = doc.select("#block-sos-content > div > div > div > b").text();
             int check2 = doc.getAllElements().size(); //9 is blank listing message
-            if(check2 < 15){
+            if(check2 == 9){
                 totalScraped = 0;
-                parse();
+                killSwitch();
             }
             if (check.equalsIgnoreCase("No matches found.")){
                 parse();
@@ -179,33 +179,12 @@ public class Alabama {
 
 
     }
-    private static String add(String URL){
 
-        if(nextBiz < 10){
-            formatted = String.format("%06d", nextBiz);
-        }
-        if (nextBiz >=10 && nextBiz <= 99){
-            formatted = String.format("%06d", nextBiz);
-        }
-        if (nextBiz >=100 && nextBiz <= 999){
-            formatted = String.format("%06d", nextBiz);
-        }
-        if (nextBiz >=1000 && nextBiz <= 9999){
-            formatted = String.format("%06d", nextBiz);
-        }
-        if (nextBiz >= 10000 && nextBiz <= 99999){
-            formatted = String.format("%06d", nextBiz);
-        }
-        if (nextBiz >= 100000){
-            formatted = Integer.toString(nextBiz);
-        }
-        return URL + formatted;
-    }
     private static void setProxy() throws IOException {
         Authenticator.setDefault(
                 new Authenticator() {
                     public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(urlsAndKeys.user(), urlsAndKeys.password().toCharArray());
+                        return new PasswordAuthentication(urlsAndKeys.password(), urlsAndKeys.user().toCharArray());
                     }
                 }
         );
@@ -227,7 +206,7 @@ public class Alabama {
             setProxy();
         }
         lastIP = hostname;
-
+        System.out.println("getting proxies");
         System.setProperty("http.proxyHost", hostname);
         System.setProperty("http.proxyPort", "80");
         System.setProperty("http.proxyUser", urlsAndKeys.user());
@@ -236,15 +215,16 @@ public class Alabama {
 
         URL url2 = new URL("http://arc-sos.state.al.us/cgi/corpdetail.mbr/detail?page=number&num1");
         HttpURLConnection con2 = (HttpURLConnection)url2.openConnection();
-        con2.setConnectTimeout(1000);
+
         int newResponseCode = con2.getResponseCode();
+        System.out.println(newResponseCode);
         System.out.println(newResponseCode + " getting response code.");
         if (newResponseCode == 407){
             System.out.println("Bad proxy. Getting new Proxy");
             setProxy();
         }
         System.out.println("proxy set ");
-        System.out.println(hostname);
+       // System.out.println(hostname);
     }
     public static void killSwitch(){
         System.out.println("BANNED");
